@@ -1,9 +1,0 @@
-FROM python:3.13.11-slim
-
-RUN pip install pyarrow pandas 
-
-WORKDIR /code
-
-COPY pipeline.py .
-
-ENTRYPOINT [ "python", "pipeline.py" ]
