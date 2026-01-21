@@ -1,13 +1,21 @@
-FROM python:3.13.11-slim
+# Start from slim Python image
+FROM python:3.13-slim
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
-
-RUN pip install pyarrow pandas 
-
+# Set working directory inside container
 WORKDIR /code
 
-COPY ".python-version" "uv.lock" "pyproject.toml" ./
+# Install uv
+RUN pip install uv
 
-COPY pipeline/pipeline.py .
+# Copy dependency files first
+COPY pyproject.toml uv.lock ./
 
-# ENTRYPOINT [ "python", "pipeline.py" ]
+# Create uv environment & install dependencies
+RUN uv sync --locked
+
+# Copy the rest of your project
+COPY . .
+
+# Default command: run pipeline.py with argument passed to container
+# You can override the argument when running
+ENTRYPOINT ["uv", "run", "python", "pipeline.py"]
