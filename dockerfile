@@ -18,4 +18,4 @@ COPY . .
 
 # Default command: run pipeline.py with argument passed to container
 # You can override the argument when running
-ENTRYPOINT ["uv", "run", "python", "pipeline.py"]
+ENTRYPOINT ["uv", "run", "python", "ingest_data.py"]

@@ -1,3 +1,4 @@
+import click
 import pandas as pd
 from tqdm.auto import tqdm
 from sqlalchemy import create_engine
@@ -31,17 +32,17 @@ parse_dates = [
 
 
 
-def run():
-    year = 2021
-    month = 1
-
-    pg_user = 'root'
-    pg_pass = 'root'
-    pg_host = 'localhost'
-    pg_port = 5432
-    pg_db = 'ny_taxi'
-    chunksize = 100000
-    target_table = 'yellow_taxi_data'
+@click.command()
+@click.option('--year', type=int, default=2021, help='Year of the data')
+@click.option('--month', type=int, default=1, help='Month of the data')
+@click.option('--pg-user', type=str, default='root', help='PostgreSQL username')
+@click.option('--pg-pass', type=str, default='root', help='PostgreSQL password')
+@click.option('--pg-host', type=str, default='localhost', help='PostgreSQL host')
+@click.option('--pg-port', type=int, default=5432, help='PostgreSQL port')
+@click.option('--pg-db', type=str, default='ny_taxi', help='PostgreSQL database name')
+@click.option('--chunksize', type=int, default=100000, help='Chunk size for data loading')
+@click.option('--target-table', type=str, default='yellow_taxi_data', help='Target table name')
+def run(year, month, pg_user, pg_pass, pg_host, pg_port, pg_db, chunksize, target_table):
     
     try:
         prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
@@ -68,8 +69,7 @@ def run():
         return
 
     try:
-        print(pd.io.sql.get_schema(df, name='yellow_taxi_data', con=engine))
-        df.head(n=0).to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
+        df.head(n=0).to_sql(name=target_table, con=engine, if_exists='replace')
         print("Table created successfully")
     except Exception as e:
         print(f"Error creating table: {e}")
