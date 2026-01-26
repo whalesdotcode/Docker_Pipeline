@@ -20,15 +20,14 @@ dtype = {
     "tolls_amount": "float64",
     "improvement_surcharge": "float64",
     "total_amount": "float64",
-    "congestion_surcharge": "float64"
+    "congestion_surcharge": "float64",
+    "cbd_congestion_fee": "float64"
 }
 
 parse_dates = [
-    "tpep_pickup_datetime",
-    "tpep_dropoff_datetime"
+    "lpep_pickup_datetime",
+    "lpep_dropoff_datetime"
 ]
-
-
 
 
 
@@ -45,14 +44,13 @@ parse_dates = [
 def run(year, month, pg_user, pg_pass, pg_host, pg_port, pg_db, chunksize, target_table):
     
     try:
-        prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
-        suffix = f'yellow_tripdata_{year}-{month:02d}.csv.gz'
+        prefix = 'https://d37ci6vzurychx.cloudfront.net/trip-data/'
+        suffix = f'green_tripdata_{year}-{month:02d}.parquet'
         print(f"Downloading {suffix}...")
-        df = pd.read_csv(
-            prefix + suffix,
-            dtype=dtype,
-            parse_dates=parse_dates
-        )
+        url = prefix + suffix
+        df = pd.read_parquet(url)
+        df = df.astype(dtype)
+        df[parse_dates] = df[parse_dates].apply(pd.to_datetime)
         print(f"Downloaded successfully. Rows: {len(df)}")
     except FileNotFoundError:
         print(f"Error: File not found - {suffix}")
